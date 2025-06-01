@@ -1,31 +1,26 @@
+#[derive(Default)]
 pub struct AppGui {
-    name: String,
-    age: u32,
-}
-
-impl Default for AppGui {
-    fn default() -> Self {
-        Self {
-            name: "Arthur".to_owned(),
-            age: 42,
-        }
-    }
+    current_exp: i64,
+    wanted_exp: i64,
+    mission_time: i64,
+    xp_arr: Vec<i64>,
+    time_arr: Vec<i64>,
+    result: i64,
 }
 
 impl eframe::App for AppGui {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("My egui Application");
-            ui.horizontal(|ui| {
-                let name_label = ui.label("Your name: ");
-                ui.text_edit_singleline(&mut self.name)
-                    .labelled_by(name_label.id);
+            ui.vertical(|ui| {
+                ui.add(egui::Slider::new(&mut self.wanted_exp, 0..=1168000).text("Wanted Amount of XP"));
+                ui.add(egui::Slider::new(&mut self.current_exp, 0..=1168000).text("Current XP"));
+                ui.add(egui::Slider::new(&mut self.mission_time, 0..=40).text("Mission Time (Minutes)"));
             });
-            ui.add(egui::Slider::new(&mut self.age, 0..=120).text("age"));
-            if ui.button("Increment").clicked() {
-                self.age += 1;
-            }
-            ui.label(format!("Hello '{}', age {}", self.name, self.age));
+            if ui.button("Calculate").clicked() {
+                // Placeholder
+                self.result = self.current_exp / self.mission_time  // calculate()
+            };
+            ui.label(format!("Hello world! {}", self.result))
         });
     }
 }

@@ -4,14 +4,15 @@ use eframe::egui;
 use gui::AppGui;
 
 mod gui;
+mod helldivers_data;
 
 #[tokio::main]
 async fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 240.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([340.0, 240.0]),
         ..Default::default()
     };
-    eframe::run_native("hd2_exp_calc", options, Box::new(|_| {
+    eframe::run_native("Helldivers 2 Experience Calculator", options, Box::new(|_| {
         Ok(Box::<AppGui>::default())
     }))
 }
