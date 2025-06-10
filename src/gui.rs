@@ -1,3 +1,6 @@
+// This is here so the compiler doesnt complain about unused values. Will be removed when they are.
+#![allow(unused)]
+
 #[derive(Default)]
 pub struct AppGui {
     current_exp: i64,

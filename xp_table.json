@@ -1,0 +1,102 @@
+[
+  {
+    "Level": 1,
+    "total_experience": 0,
+    "required_experience_for_next": 100
+  },
+  {
+    "Level": 2,
+    "total_experience": 100,
+    "required_experience_for_next": 250
+  },
+  {
+    "Level": 3,
+    "total_experience": 350,
+    "required_experience_for_next": 500
+  },
+  {
+    "Level": 4,
+    "total_experience": 850,
+    "required_experience_for_next": 750
+  },
+  {
+    "Level": 5,
+    "total_experience": 1600,
+    "required_experience_for_next": 1000
+  },
+  {
+    "Level": 6,
+    "total_experience": 2600,
+    "required_experience_for_next": 1000
+  },
+  {
+    "Level": 7,
+    "total_experience": 3600,
+    "required_experience_for_next": 1000
+  },
+  {
+    "Level": 8,
+    "total_experience": 4600,
+    "required_experience_for_next": 1250
+  },
+  {
+    "Level": 9,
+    "total_experience": 5850,
+    "required_experience_for_next": 1250
+  },
+  {
+    "Level": 10,
+    "total_experience": 7100,
+    "required_experience_for_next": 1300
+  },
+  {
+    "Level": 11,
+    "total_experience": 8400,
+    "required_experience_for_next": 1500
+  },
+  {
+    "Level": 12,
+    "total_experience": 9900,
+    "required_experience_for_next": 1500
+  },
+  {
+    "Level": 13,
+    "total_experience": 11400,
+    "required_experience_for_next": 1500
+  },
+  {
+    "Level": 14,
+    "total_experience": 12900,
+    "required_experience_for_next": 1500
+  },
+  {
+    "Level": 15,
+    "total_experience": 14400,
+    "required_experience_for_next": 1500
+  },
+  {
+    "Level": 16,
+    "total_experience": 15900,
+    "required_experience_for_next": 2000
+  },
+  {
+    "Level": 17,
+    "total_experience": 17900,
+    "required_experience_for_next": 2000
+  },
+  {
+    "Level": 18,
+    "total_experience": 19900,
+    "required_experience_for_next": 2000
+  },
+  {
+    "Level": 19,
+    "total_experience": 21900,
+    "required_experience_for_next": 2000
+  },
+  {
+    "Level": 20,
+    "total_experience": 23900,
+    "required_experience_for_next": 2000
+  }
+]
