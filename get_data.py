@@ -14,38 +14,49 @@ wait = WebDriverWait(driver, 10)
 # Wait till the cookie popup is manually exited out of.
 sleep(10)
 
-# Parse tables.
-# TODO: Save the data into a json file with the following scheme.
-"""
-{
-    "Level": number,
-    "total_experience": number,
-    "required_experience_for_next": number
-}
-"""
+
 # Variable to store data from the site for further processing
 data = []
+# Parsing tables.
+for table in wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "table tr")))[1:-1]:
+    elements = [item.text for item in table.find_elements(By.CSS_SELECTOR, "th, td")]
+    data.append(elements)
 
-for table in wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "table tr")))[1:]:
-    # TODO: Rename idk to something that makes sense
-    idk = [item.text for item in table.find_elements(By.CSS_SELECTOR, "th, td")]
-    data.append(idk)
-    
+# Firefox not needed anymore.
 driver.quit()
 
-variable = {}
+# print(data)
 
+# Variable that stores processed data.
+table_data = []
+# Elements processing starts.
 for item in data:
-    
     if item[0].isnumeric() == True:
-        variable[f"Level {item[0]}"] = {"level": item[0], "total_expirience": item[1], "required_experience_for_next": item[2]}
+        variable = {
+            "level": int(item[0].replace(",", "")),
+            "total_experience": int(item[1].replace(",", "")),
+            "required_experience_for_next": int(item[2].replace(",", ""))
+        }
+        table_data.append(variable)
     elif item[2].isnumeric() == True:
-        variable[f"Level {item[2]}"] = {"level": item[2], "total_expirience": item[3], "required_experience_for_next": item[4]}
+        # Last number is not defined, as it's the max rank.
+        if item[4] != "":
+            variable = {
+                "level": int(item[2].replace(",", "")), 
+                "total_experience": int(item[3].replace(",", "")),
+                "required_experience_for_next": int(item[4].replace(",", ""))
+            }
+            table_data.append(variable)
+        else:   
+            variable = {
+                "level": int(item[2].replace(",", "")), 
+                "total_experience": int(item[3].replace(",", "")),
+                "required_experience_for_next": 0
+            }
+            table_data.append(variable)
     else:
         continue
-    
-print(variable)
 
 # Opening and writing the data we want into a json file, if the json file doesn't exist, it will be created
 with open("xp_table.json", encoding="utf-8", mode="w") as f:
-    f.write(json.dumps(variable))
+    f.write(json.dumps(table_data, sort_keys=True, indent=4))
