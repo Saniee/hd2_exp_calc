@@ -27,17 +27,20 @@ pub struct TableElement {
     pub required_experience_for_next: i64,
 }
 
+// This is needed cause the json data is hard to store into memory without async.
 #[derive(Clone)]
 pub struct DataHandling {
     ranks: Vec<TableElement>
 }
 
 impl DataHandling {
+    // Make a new struct.
     pub fn new() -> Self {
         DataHandling { ranks: Vec::new() }
     }
 
-    // Load the json table with xp values.
+    // Load the json table with xp values. We use a mutable self to change the ranks variable in the struct.
+    // We dont return the values, but we return an error if it happens.
     pub async fn load_table(&mut self) -> Result<(), FunctionsError> {
         let data = match fs::read_to_string("./xp_table.json").await {
             Ok(string) => string,
@@ -49,6 +52,7 @@ impl DataHandling {
     }
 }
 
+// General function to find the rank number with just xp values.
 pub fn find_rank(data_handler: DataHandling, xp: i64) -> i64 {
     // println!("{}", cur_exp);
     let ranks = data_handler.ranks;
@@ -66,8 +70,8 @@ pub fn find_rank(data_handler: DataHandling, xp: i64) -> i64 {
     level
 }
 
-// Calculate stuff idk
-#[allow(clippy::too_many_arguments)]
-pub fn calculate(data_handler: DataHandling, cur_rank: i64, want_xp: i64, cur_xp: i64, rec_xp: i64, mis_time: i64, xp_arr: Vec<i64>, time_arr: Vec<i64>) -> (Vec<i64>, Vec<i64>, String) {
-    todo!()
-}
+// TODO: Make a function that calculates the avg time/xp to the next rank.
+// TODO: Make a function that moves forward the current_xp values, and resets the recieved xp values and mission time ones.
+// I originally wanted just one function, but the line for calling it is too big.
+// So it would be much simpler to make just.. multiple that have dif. purposes. Dont forget to make them public with "pub"!
+// pub fn function() {}
