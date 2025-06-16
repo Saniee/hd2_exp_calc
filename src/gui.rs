@@ -3,6 +3,12 @@
 
 use crate::helldivers_data::functions::{self, DataHandling};
 
+#[derive(Clone, Default)]
+pub struct CalcResult {
+    pub avg_time: i64,
+    pub avg_xp: i64,
+}
+
 #[derive(Clone)]
 pub struct AppGui {
     current_exp: i64,
@@ -11,7 +17,7 @@ pub struct AppGui {
     mission_time: i64,
     xp_arr: Vec<i64>,
     time_arr: Vec<i64>,
-    result: String,
+    result: CalcResult,
     current_rank: i64,
     wanted_rank: i64,
     data_handler: DataHandling
@@ -21,6 +27,7 @@ impl AppGui {
     pub async fn new() -> Self {
         let mut data_handler = DataHandling::new();
         data_handler.load_table().await.unwrap();
+        let result = CalcResult::default();
         AppGui {
             current_exp: i64::default(),
             wanted_exp: i64::default(),
@@ -28,9 +35,9 @@ impl AppGui {
             mission_time: i64::default(),
             xp_arr: Vec::new(),
             time_arr: Vec::new(),
-            result: String::new(),
-            current_rank: i64::default(),
-            wanted_rank: i64::default(),
+            result,
+            current_rank: 1,
+            wanted_rank: 1,
             data_handler
         }
     }
@@ -65,10 +72,10 @@ impl eframe::App for AppGui {
             // The button which does all the work.
             // Call the main functions under this if statement.
             if ui.add(egui::Button::new("Calculate!")).clicked() {
-                
+                (self.xp_arr, self.time_arr, self.result) = functions::calculate_avg(self.mission_time, self.recieved_exp, self.xp_arr.clone(), self.time_arr.clone())
             };
             
-            ui.label(self.result.to_string());
+            ui.label(format!("Average Time: {} Min.\nAverage XP: {}", self.result.avg_time, self.result.avg_xp));
         });
     }
 }

@@ -1,11 +1,14 @@
 // This is here so the compiler doesnt complain about unused values/structs/enums. Will be removed when they are.
 #![allow(unused, clippy::if_same_then_else)]
 
+use core::time;
 use std::{io::Error, path::Path};
 
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
 use tokio::fs;
+
+use crate::gui::CalcResult;
 
 // Error handling, define an error when needed here.
 // Examples on how: https://docs.rs/thiserror/latest/thiserror/#example
@@ -75,3 +78,20 @@ pub fn find_rank(data_handler: DataHandling, xp: i64) -> i64 {
 // I originally wanted just one function, but the line for calling it is too big.
 // So it would be much simpler to make just.. multiple that have dif. purposes. Dont forget to make them public with "pub"!
 // pub fn function() {}
+pub fn calculate_avg(mission_time: i64, recieved_exp: i64, mut xp_arr: Vec<i64>, mut time_arr: Vec<i64>) -> (Vec<i64>, Vec<i64>, CalcResult) {
+    xp_arr.push(recieved_exp);
+    time_arr.push(mission_time);
+
+    let mut avg_xp: i64 = 0;
+    for xp in xp_arr.clone() {
+        avg_xp += xp;
+    }
+    avg_xp /= i64::try_from(xp_arr.clone().len()).unwrap();
+    let mut avg_time: i64 = 0;
+    for time in time_arr.clone() {
+        avg_time += time;
+    }
+    avg_time /= i64::try_from(time_arr.clone().len()).unwrap();
+
+    (xp_arr, time_arr, CalcResult {avg_time, avg_xp})
+}
