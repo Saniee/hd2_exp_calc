@@ -72,7 +72,7 @@ impl eframe::App for AppGui {
             // So people know how much they need to input.
             ui.vertical(|ui| {
                 // Link to the wiki so people can see how much xp they already have.
-                ui.add(Hyperlink::from_label_and_url("Link to all Experiences values.", "https://helldivers.wiki.gg/wiki/Ranks"));
+                ui.add(Hyperlink::from_label_and_url("Link to all Experiences values.", "https://helldivers.wiki.gg/wiki/Ranks#Ranks,_Experience_and_Unlocks"));
                 let cur_xp = ui.add(egui::Slider::new(&mut self.xp_inputs.current_xp, 0..=1168000).text("Current XP"));
                 let want_xp = ui.add(egui::Slider::new(&mut self.xp_inputs.wanted_xp, 0..=1168000).text("Wanted Amount of XP"));
 
