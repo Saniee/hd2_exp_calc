@@ -9,7 +9,7 @@ mod helldivers_data;
 #[tokio::main]
 async fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([340.0, 240.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([360.0, 250.0]),
         ..Default::default()
     };
     let app = AppGui::new().await;

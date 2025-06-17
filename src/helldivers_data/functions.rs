@@ -8,7 +8,7 @@ use thiserror::Error;
 use serde::{Serialize, Deserialize};
 use tokio::fs;
 
-use crate::gui::CalcResult;
+use crate::gui::AvgResult;
 
 // Error handling, define an error when needed here.
 // Examples on how: https://docs.rs/thiserror/latest/thiserror/#example
@@ -17,13 +17,15 @@ pub enum FunctionsError {
     #[error("Couldn't read the xp table file.")]
     ErrorReadingTable {
         fs_error: Error
-    }
+    },
+    #[error("Couldn't find the index of rank {0}!")]
+    RankNotFound(i64)
 }
 
 // For loading the data table. Defined types etc.
-pub type Table = Vec<TableElement>;
+pub type Table = Vec<RankData>;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct TableElement {
+pub struct RankData {
     #[serde(rename = "level")]
     pub level: i64,
     pub total_experience: i64,
@@ -32,14 +34,16 @@ pub struct TableElement {
 
 // This is needed cause the json data is hard to store into memory without async.
 #[derive(Clone)]
-pub struct DataHandling {
-    ranks: Vec<TableElement>
+pub struct RankHandling {
+    ranks: Vec<RankData>
 }
 
-impl DataHandling {
+// TODO: Save arrays and values into a json file for later use.
+// TODO: Make a function that resets these saved values.
+impl RankHandling {
     // Make a new struct.
     pub fn new() -> Self {
-        DataHandling { ranks: Vec::new() }
+        RankHandling { ranks: Vec::new() }
     }
 
     // Load the json table with xp values. We use a mutable self to change the ranks variable in the struct.
@@ -53,32 +57,58 @@ impl DataHandling {
         self.ranks = table;
         Ok(())
     }
-}
 
-// General function to find the rank number with just xp values.
-pub fn find_rank(data_handler: DataHandling, xp: i64) -> i64 {
-    // println!("{}", cur_exp);
-    let ranks = data_handler.ranks;
-    let mut level: i64 = 0;
+    // General function to find the rank number with just xp values.
+    pub fn find_rank(&self, xp: i64) -> i64 {
+        // println!("{}", cur_exp);
+        let ranks = &self.ranks;
+        let mut level: i64 = 0;
 
-    for rank in ranks {
-        if rank.total_experience > xp {
-            continue;
-        } else if rank.total_experience == xp {
-            level = rank.level
-        } else if rank.total_experience < xp {
-            level = rank.level
+        for rank in ranks {
+            if rank.total_experience > xp {
+                continue;
+            } else if rank.total_experience == xp {
+                level = rank.level
+            } else if rank.total_experience < xp {
+                level = rank.level
+            }
         }
+        level
     }
-    level
+
+    pub fn sum_needed_xp(&self, current_rank: i64, wanted_rank: i64) -> Result<i64, FunctionsError> {
+        let start_index = match self.ranks.iter().position(|x| x.level == current_rank) {
+            Some(index) => index,
+            None => return Err(FunctionsError::RankNotFound(current_rank))
+        };
+        
+        let (_, split_ranks) = self.ranks.split_at(start_index);
+
+        let end_index = match split_ranks.iter().position(|x| x.level == wanted_rank) {
+            Some(index) => index,
+            None => return Err(FunctionsError::RankNotFound(wanted_rank))
+        };
+
+        // println!("{:?}", split_ranks);
+
+        let mut sum: i64 = 0;
+        for (i, rank) in split_ranks.iter().enumerate() {
+            if i == end_index {
+                break;
+            } else {
+                // println!("{:?}", rank.level);
+                sum += rank.required_experience_for_next;
+            }
+        }
+
+        // println!("{:?}", sum);
+
+        Ok(sum)
+    }
 }
 
-// TODO: Make a function that calculates the avg time/xp to the next rank.
-// TODO: Make a function that moves forward the current_xp values, and resets the recieved xp values and mission time ones.
-// I originally wanted just one function, but the line for calling it is too big.
-// So it would be much simpler to make just.. multiple that have dif. purposes. Dont forget to make them public with "pub"!
-// pub fn function() {}
-pub fn calculate_avg(mission_time: i64, recieved_exp: i64, mut xp_arr: Vec<i64>, mut time_arr: Vec<i64>) -> (Vec<i64>, Vec<i64>, CalcResult) {
+// * Make a function that calculates the avg time/xp to the next rank. - Should be done.
+pub fn calculate_avg(mission_time: i64, recieved_exp: i64, mut xp_arr: Vec<i64>, mut time_arr: Vec<i64>) -> (Vec<i64>, Vec<i64>, AvgResult) {
     xp_arr.push(recieved_exp);
     time_arr.push(mission_time);
 
@@ -93,5 +123,10 @@ pub fn calculate_avg(mission_time: i64, recieved_exp: i64, mut xp_arr: Vec<i64>,
     }
     avg_time /= i64::try_from(time_arr.clone().len()).unwrap();
 
-    (xp_arr, time_arr, CalcResult {avg_time, avg_xp})
+    (xp_arr, time_arr, AvgResult { avg_time, avg_xp })
+}
+
+// TODO: Create a function that estimates the time needed for the wanted rank, based on avg mission time and xperience.
+pub fn estimate_time_needed() {
+    todo!()
 }
