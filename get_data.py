@@ -2,12 +2,15 @@ from selenium.webdriver import Firefox
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.firefox.service import Service
 
 import json
 
 from time import sleep
 
-driver = Firefox()
+firefox_service = Service(executable_path="geckodriver")
+
+driver = Firefox(service=firefox_service)
 driver.get("https://helldivers.wiki.gg/wiki/Ranks")
 wait = WebDriverWait(driver, 10)
 
