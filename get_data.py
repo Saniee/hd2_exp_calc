@@ -1,18 +1,61 @@
 from selenium.webdriver import Firefox
+from selenium.webdriver import Chrome
+from selenium.webdriver import ChromeOptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
+import pyautogui
 import json
 
 from time import sleep
 
-driver = Firefox()
-driver.get("https://helldivers.wiki.gg/wiki/Ranks")
+inp = input("Choose Chrome or Firefox (c for Chrome, f for Firefox): ")
 
-# Installing extension to not have to click off cookies pop ups
-driver.install_addon(path="istilldontcareaboutcookies-1.1.4.xpi", temporary=True)
-wait = WebDriverWait(driver, 10)
+# Handling if user chooses Chrome
+if inp == "c":
+    # Making Chrome launch in english so the finding of button works
+    options = ChromeOptions()
+    options.add_experimental_option('prefs', {'intl.accept_languages': 'en,en_US'})
+
+    driver = Chrome(options=options)
+
+    # Installing extension to not have to click off cookies pop ups
+    driver.get("https://chromewebstore.google.com/detail/i-still-dont-care-about-c/edibdbjcniadpccecjdfdjjppcpchdlm")
+    wait = WebDriverWait(driver, 10)
+
+    try:
+        # Find the "Add to Chrome" button
+        add_to_chrome_button = driver.find_element(By.XPATH, '//button[span[contains(text(),"Add to Chrome")]]')
+        
+        # Click the "Add to Chrome" button
+        add_to_chrome_button.click()
+        
+        sleep(8)
+        pyautogui.press('tab', presses=1)
+        sleep(1)
+        
+        # Use PyAutoGUI to press Enter to confirm "Add to Extension"
+        pyautogui.press('enter')
+        
+        # Wait for the "Add Extension" confirmation dialog
+        sleep(2)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        
+    # Going to the helldivers ranks website
+    driver.get("https://helldivers.wiki.gg/wiki/Ranks")
+
+# Handling if user chooses Firefox
+elif inp == "f":
+    driver = Firefox()
+    driver.get("https://helldivers.wiki.gg/wiki/Ranks")
+
+    # Installing extension to not have to click off cookies pop ups
+    driver.install_addon(path="istilldontcareaboutcookies-1.1.4.xpi", temporary=True)
+    wait = WebDriverWait(driver, 10)
+
 
 # Variable to store data from the site for further processing
 data = []
