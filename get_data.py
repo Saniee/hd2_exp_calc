@@ -9,11 +9,10 @@ from time import sleep
 
 driver = Firefox()
 driver.get("https://helldivers.wiki.gg/wiki/Ranks")
+
+# Installing extension to not have to click off cookies pop ups
+driver.install_addon(path="istilldontcareaboutcookies-1.1.4.xpi", temporary=True)
 wait = WebDriverWait(driver, 10)
-
-# Wait till the cookie popup is manually exited out of.
-sleep(10)
-
 
 # Variable to store data from the site for further processing
 data = []
