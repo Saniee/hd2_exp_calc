@@ -1,14 +1,14 @@
 // This is here so the compiler doesnt complain about unused values/structs/enums. Will be removed when they are.
 #![allow(unused, clippy::if_same_then_else)]
 
-use core::time;
+use time::{self, Duration};
 use std::{io::Error, path::Path};
 
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
 use tokio::fs;
 
-use crate::gui::AvgResult;
+use crate::gui::{AvgResult, ExperienceInputs};
 
 // Error handling, define an error when needed here.
 // Examples on how: https://docs.rs/thiserror/latest/thiserror/#example
@@ -108,25 +108,22 @@ impl RankHandling {
 }
 
 // * Make a function that calculates the avg time/xp to the next rank. - Should be done.
-pub fn calculate_avg(mission_time: i64, recieved_exp: i64, mut xp_arr: Vec<i64>, mut time_arr: Vec<i64>) -> (Vec<i64>, Vec<i64>, AvgResult) {
+pub fn calculate_avg(mission_time: Duration, recieved_exp: i64, mut xp_arr: Vec<i64>, mut time_arr: Vec<Duration>) -> (Vec<Duration>, Vec<i64>, AvgResult) {
     xp_arr.push(recieved_exp);
     time_arr.push(mission_time);
 
-    let mut avg_xp: i64 = 0;
-    for xp in xp_arr.clone() {
-        avg_xp += xp;
+    let mut avg_time = 0;
+    for time in time_arr.clone().iter() {
+        avg_time += time.whole_minutes();
     }
-    avg_xp /= i64::try_from(xp_arr.clone().len()).unwrap();
-    let mut avg_time: i64 = 0;
-    for time in time_arr.clone() {
-        avg_time += time;
-    }
-    avg_time /= i64::try_from(time_arr.clone().len()).unwrap();
+    avg_time /= time_arr.len() as i64;
 
-    (xp_arr, time_arr, AvgResult { avg_time, avg_xp })
+    (time_arr.clone(), xp_arr.clone(), AvgResult { avg_time: Duration::minutes(avg_time), avg_xp: (xp_arr.iter().sum::<i64>() / xp_arr.len() as i64)})
 }
 
-// TODO: Create a function that estimates the time needed for the wanted rank, based on avg mission time and xperience.
-pub fn estimate_time_needed() {
-    todo!()
+// * Create a function that estimates the time needed for the wanted rank, based on avg mission time and xperience. - Done.
+pub fn estimate_time_needed(time_arr: Vec<Duration>, needed_xp: i64, avg: AvgResult, rank_handler: RankHandling) -> Duration {
+    let missions_needed = needed_xp / avg.avg_xp;
+    let est = missions_needed * avg.avg_time.whole_minutes();
+    Duration::minutes(est)
 }

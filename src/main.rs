@@ -12,7 +12,7 @@ async fn main() -> eframe::Result {
         viewport: egui::ViewportBuilder::default()
             .with_resizable(false)
             .with_maximize_button(false)
-            .with_inner_size([360.0, 250.0]),
+            .with_inner_size([400.0, 300.0]),
         ..Default::default()
     };
     let app = AppGui::new().await;

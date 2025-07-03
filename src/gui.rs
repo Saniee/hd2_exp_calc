@@ -2,13 +2,14 @@
 #![allow(unused)]
 
 use egui::{Color32, Hyperlink, RichText};
+use time::Duration;
 
 use crate::helldivers_data::functions::{self, RankHandling};
 
 // Stores the values after calculating avg time and xp per mission.
 #[derive(Clone, Default)]
 pub struct AvgResult {
-    pub avg_time: i64,
+    pub avg_time: Duration,
     pub avg_xp: i64,
 }
 
@@ -34,9 +35,10 @@ pub struct AppGui {
     wanted_rank: i64,
     current_rank: i64,
     xp_arr: Vec<i64>,
-    time_arr: Vec<i64>,
+    time_arr: Vec<Duration>,
     avg_results: AvgResult,
     needed_xp: i64,
+    final_result: Duration,
 }
 
 const LABEL_FONT_SIZE: f32 = 16.0;
@@ -60,6 +62,7 @@ impl AppGui {
             time_arr: Vec::new(),
             avg_results,
             needed_xp: i64::default(),
+            final_result: Duration::minutes(0)
         }
     }
 }
@@ -99,8 +102,9 @@ impl eframe::App for AppGui {
             // The button which does all the work.
             if ui.add(egui::Button::new("Calculate!")).clicked() {
                 // Call the main functions under here.
-                (self.xp_arr, self.time_arr, self.avg_results) = functions::calculate_avg(self.mission_inputs.mission_time, self.mission_inputs.recieved_exp, self.xp_arr.clone(), self.time_arr.clone());
-                
+                (self.time_arr, self.xp_arr, self.avg_results) = functions::calculate_avg(Duration::minutes(self.mission_inputs.mission_time), self.mission_inputs.recieved_exp, self.xp_arr.clone(), self.time_arr.clone());
+                self.final_result = functions::estimate_time_needed(self.time_arr.clone(), self.needed_xp, self.avg_results.clone(), self.rank_handler.clone());
+
                 // Manipulate the UI so it gives all the info.
                 self.xp_inputs = ExperienceInputs { current_xp: self.xp_inputs.current_xp + self.mission_inputs.recieved_exp, wanted_xp: self.xp_inputs.wanted_xp };
                 self.current_rank = self.rank_handler.find_rank(self.xp_inputs.current_xp);
@@ -108,8 +112,23 @@ impl eframe::App for AppGui {
             };
             
             // Main Labels
-            ui.label(RichText::new(format!("Average Time: {} Min.\nAverage XP: {}", self.avg_results.avg_time, self.avg_results.avg_xp)).size(LABEL_FONT_SIZE).color(HIGHLIGHT_COLOR));
-            ui.label(RichText::new("Time needed to wanted rank: {WIP}").size(LABEL_FONT_SIZE).color(HIGHLIGHT_COLOR));
+            ui.label(RichText::new(format!("Average Time: {}\nAverage XP: {}", self.avg_results.avg_time, self.avg_results.avg_xp)).size(LABEL_FONT_SIZE).color(HIGHLIGHT_COLOR));
+            ui.label(RichText::new(format!("Time needed to wanted rank: {}", self.final_result)).size(LABEL_FONT_SIZE).color(HIGHLIGHT_COLOR));
+
+            // Clear data button if user f-up.
+            if ui.add(egui::Button::new("Clear Data.")).clicked() {
+                self.avg_results = AvgResult {avg_time: Duration::minutes(0), avg_xp: 0};
+                self.final_result = Duration::minutes(0);
+                self.needed_xp = 0;
+                self.mission_inputs = MissionInputs {recieved_exp: 0, mission_time: 0};
+                self.time_arr = Vec::new();
+                self.xp_arr = Vec::new();
+
+                self.xp_inputs.current_xp = 0;
+                self.xp_inputs.wanted_xp = 0;
+                self.current_rank = self.rank_handler.find_rank(self.xp_inputs.current_xp);
+                self.wanted_rank = self.rank_handler.find_rank(self.xp_inputs.wanted_xp);
+            }
         });
     }
 }
